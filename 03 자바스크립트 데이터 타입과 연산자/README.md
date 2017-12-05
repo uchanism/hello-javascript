@@ -693,6 +693,7 @@ delete 연산자는 해당 **요소 값을 undefined로 설절 할 뿐 원소 �
 ### 3.7.1 + 연산자 ###
 * 더하기연산
 * 문자열 연결 연산
+
 *예제 3-28 +연산자 예제*
 ```js
     var add1 = 1+2;
@@ -705,6 +706,86 @@ delete 연산자는 해당 **요소 값을 undefined로 설절 할 뿐 원소 �
     console.log(add3);  // 1string
     console.log(add4);  // string2
 ```
+###3.7.2 typeof 연산자###
+피연산자의 타입을 문자열 형태로 리턴한다
+<table>
+    <caption>각 타입별 typeof 연산자 결과</caption>
+    <tbody>
+        <tr>
+            <td>
+                기본타입
+            </td>
+            <td>
+                숫자
+            </td>
+            <td>
+                'number'
+            </td>
+        </tr>
+        <tr>
+            <td>기본타입</td>
+            <td>문자열</td>
+            <td>'string'</td>
+        </tr>
+        <tr>
+            <td>기본타입</td>
+            <td>불린값</td>
+            <td>'boolean'</td>
+        </tr>
+        <tr>
+            <td>기본타입</td>
+            <td><strong>null</strong></td>
+            <td><strong>'object'</strong></td>
+        </tr>
+        <tr>
+            <td>기본타입</td>
+            <td>undefined</td>
+            <td>'undefined'</td>
+        </tr>
+        <tr>
+            <td>참조타입</td>
+            <td>객체</td>
+            <td>'object'</td>
+        </tr>
+        <tr>
+            <td>참조타입</td>
+            <td><strong>배열</strong></td>
+            <td><strong>'object'</strong></td>
+        </tr>
+        <tr>
+            <td>참조타입</td>
+            <td><strong>함수</strong></td>
+            <td><strong>'function'</strong></td>
+        </tr>
+    </tbody>
+</table>
+
+### 3.7.3 ==(동등) 연산자와 ===(일치) 연산자 ###
+| ==(동등) 연산자   | ===(일치) 연산자  |
+|---|---|
+|비교하려는 피연산자의 타입이 다를 경우<br>**타입 변환을 거친 다음** 비교한다   |  피연산자의 **타입을 변경하지 않고** 비교한다. |
+
+*예제 3-29 ==(동등) 연산자와 ===(일치) 연산자의 차이점*
+```js
+    console.log(1 == '1');      // true
+    console.log(1 === '1');     // false
+```   
+### 3.7.4 !! 연산자 ###
+피연산자를 불린값으로 변환 한다.
+*예제 3-30 !!연산자 활용을 통한 불린값 변환*
+```js
+    console.log(!!0);           // false
+    console.log(!!1);           // true
+    console.log(!!'string');    // true
+    console.log(!!'');          // false
+    console.log(!!true);        // true
+    console.log(!!false);       // false
+    console.log(!!null);        // false
+    console.log(!!undefined);   // false
+    console.log(!!{});          // true
+    console.log(!![1,2,3]);     // true
+```
+
 <table>
     <caption style="font-size:24px;font-weight:bold;text-align:left;">ISSUE LIST</caption>
     <colgroup>
