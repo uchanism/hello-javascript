@@ -706,7 +706,7 @@ delete 연산자는 해당 **요소 값을 undefined로 설절 할 뿐 원소 �
     console.log(add3);  // 1string
     console.log(add4);  // string2
 ```
-###3.7.2 typeof 연산자###
+### 3.7.2 typeof 연산자 ###
 피연산자의 타입을 문자열 형태로 리턴한다
 <table>
     <caption>각 타입별 typeof 연산자 결과</caption>
