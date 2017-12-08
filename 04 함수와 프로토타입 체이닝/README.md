@@ -477,9 +477,570 @@ jQuery와 같은 자바스크립트 라이브러리나 프레임워크 소스들
         }
     }
 
-    self =  self();     //  a가 출력되고 리턴값 익명함수가 저장된다.
-                        //  a
+    self =  self();     //  a가 출력되고 리턴된 익명함수가 저장된다.
     
+    console.log(self);
     self();             //  리턴받은 익명함수가 실행된다.
                         //  b
 ```
+
+## 4.4 함수 호출과 this ##
+다른 언어와 달리 자유로운 함수 호출이 가능하다.
+
+### 4.4.1 arguments 객체 ###
+함수 형식에 맞춰 인자를 넘기지 않더라도 에러가 발생하지 않는다.
+
+*예제 4-21 함수 형석에 맞춰 인자를 넘기지 않더라도 함수 호출이 가능함을 나타내는 예제 코드*
+```js
+    function func(arg1, arg2) {
+        console.log(arg1, arg2);
+    }
+    func();         //  넘기지 않은 인자는 undefined 값이 할당된다.
+                    //  undefined undefined
+    func(1);        //  1 undefined
+    
+    func(1,2);      //  1 2
+    
+    func(1,2,3);    //  초과된 인수는 무시된다.
+                    //  1 2 
+```
+
+<dl>
+    <dt>
+        arguments 객체
+    </dt>
+    <dd>
+        함수 호출 시 배열 형태의 인자들과 함께 함수 내부로 전달된다.
+    </dd>
+    <dd>
+        <strong>유사 배열 객체</strong> 다.
+    </dd>
+</dl>
+
+*예제 4-22 arguments 객체 예제 코드*
+```js
+    function add(a, b) {
+        console.dir(arguments);
+        return a+b;
+    }
+
+    console.log(add(1));        //  NaN
+    console.log(add(1,2));      //  3
+    console.log(add(1,2,3));    //  3
+
+```
+*arguments 객체 구성(__prpto__프로퍼티는 제외)*
+* 함수 호출 시 넘겨진 인자 (배열 형태) : 첫 번째 인자는 인덱스 0, 두 번째 인덱스 2 ...
+* lenght 프로퍼티 : 인자의 개수
+* callee 프로퍼티 : 현재 실행 중인 함수의 참조값(예제에서는 add() 함수)
+
+*arguments 객체를 사용하여 인자들에 배열 형태로 접근*
+```js
+    function sum() {
+        var result = 0;
+
+        for(var i=0; i < argumetns.length; i++) {
+            result += arguments[i];
+        }
+
+        return reselt;
+    }
+
+    console.log(sum(1,2,3));    //  6
+```
+
+### 4.4.2 호출 패턴과 this 바인딩 ###
+* 함수 호출 시 **this 인자**가 함수 내부로 암묵적으로 전달된다.
+* <strong>함수가 호출되는 방식(호출패턴)</strong>에 따라 this가 다른 <strong>객체를 참조(this 바인딩)</strong>한다.
+
+#### 4.4.2.1 객체의 메서드 호출할 때 this 바인딩 ####
+메서드 내부 코드에서 사용된 this는 **해당 메서드를 호출한 객체로 바인딩** 된다.
+
+*예제 4.23 메서드 호출 사용 시this 바인딩*
+```js
+    var myObject = {
+        name: 'foo',
+        sayName: function() {
+            console.log(this.name);
+        }
+    };
+
+    var otherObject = {
+        name: 'bar'
+    };
+
+
+    otherOjbect.sayName = myObject.sayName;
+
+    //  this는 자신을 호출한 객체에 바인딩된다.
+    myObject.sayName();     //  foo
+    otherObject.sayName();  //  bar
+```
+
+#### 4.4.2.2 함수를 호출할 때 this 바인딩 ####
+* 함수 내부 코드에서 사용된 **this는 전역 객체에 바인딩**된다.
+* 브라우저에서 실행 시 전역 객체는 window 객체가 된다.
+* 내부 함수의 this는 전역 객체에 바인딩 된다.
+
+
+<em id="4-24">예제 4-24 전역 객체와 전역 변수의 관계를 보여주는 예제 코드</em>
+```js
+    var foo = "I'm foo";
+
+    console.log(foo);           //  I'm foo
+
+    // 모든 전역 변수는 실제로 전역 객체의 프로퍼티들이다.
+    console.log(window.foo)      //  I'm foo
+    console.log(this.foo)        //  I'm foo
+
+    // Node js Test
+    console.log(global.foo);    //  undefined
+    console.log(this.foo);      //  undefined
+
+    global.foo = "i'm nodeJS foo";
+    console.log(global.foo);    //  i'm nodeJS foo
+    console.log(this.foo);      //  undefined
+
+    console.dir(global);
+
+    console.log(foo);   //  I'm foo
+```
+
+*예제 4-25 함수를 호출할 때 this 바인딩을 보여주는 예제코드*
+```js
+    var test = 'This is test';
+    console.log(window.test);
+
+    var sayFoo = function () {
+        console.log(this.test);     // this는 전역객체에 바인딩된다.
+    }
+
+    sayFoo();       // This is test
+```
+
+*예제 4-26 내부 함수의 this바인딩 동작을 보여주는 예제코드*
+```js
+    var value = 100;
+
+    var myObject = {
+        value: 1,
+        func1: function () {
+            this.value += 1;
+            console.log('func1() called. this.value : '+ this.value);  //   func1() called. this.value : 2
+
+            func2 = function () {
+                this.value += 1;
+                console.log('func2() calles. this.value : '+ this.value); //  func1() called. this.value : 101
+
+                func3 = function () {
+                    this.value += 1;
+                    console.log('func3() calles. this.value : '+ this.value); //  func1() called. this.value : 102
+                }
+
+                func3();
+            }
+            
+            func2();
+        }
+    };
+
+    myObject.func1();   // this는 myObject(자신을 호출한 객체)가 된다.
+
+```
+*예제 4-27 내부 함수의 this 바인딩 문제를 해결한 예제 코드*
+```js
+    var value = 100;
+
+    var myObject = {
+        value: 1,
+        func1: function () {
+            var that = this;    //  관례상 this값을 저장한느 변수의 이름을 that 이라고 짓는다.
+            
+            소ㅑㄴ.value += 1;
+            console.log('func1() called. this.value : '+ this.value);  //   func1() called. that.value : 2
+
+            func2 = function () {
+                that.value += 1;
+                console.log('func2() calles. this.value : '+ that.value); //  func1() called. that.value : 3
+
+                func3 = function () {
+                    that.value += 1;
+                    console.log('func3() calles. this.value : '+ that.value); //  func1() called. that.value : 4
+                }
+
+                func3();
+            }
+            
+            func2();
+        }
+    };
+
+    myObject.func1(); 
+```
+
+#### 4.4.2.3 생성자 함수를 호출할 때 this 바인딩 ####
+* 기존 함수에 new 연산자를 붙여 호출하면 생성자 함수로 동작한다.
+* 함수 이름의 첫 문자를 대문자로 쓰기를 권하고 있다.
+
+*생성자 함수가 동작하는 방식*
+1. <em>**빈 객체 생성 및 this바인딩**</em><br>
+생성자 함수로 생성된 빈 객체는 this로 바인딩된다.<br>
+빈 객체는 자신을 생성한 **생성자 함수의 prototype 프로퍼티**가 가리키는 객체를 **자신의 프로타입 객체**로 설정한다.
+2. <em>**this를 통한 프로퍼티 생성**</em><br>
+함수 코드 내부에서 this를 사용해서, 생성된 빈 객체에 동적으로 프로퍼티나 메서드를 생성할 수 있다.
+3. <em>**생성된 객체 리턴**</em><br>
+일반적인 경우로 특별하게 리턴문이 없을 경우, **this로 바인딩된 새로 생성한 객체가 리턴**된다.<br>(생성자 함수가 아닌 일반 함수를 호출할 때 리턴값이 명시되어 있지 않으면 undefined가 리턴된다.)<br>
+리턴값이 다른 객체를 반환하는 경우 생성자 함수를 호출하더라도<br> this(생성한 객체)가 아닌 해당 객체가 리턴된다.
+
+*예제 4-28 생성자 함수의 동작 방식*
+```js
+    var Person = function (name) {
+    /*
+        1. 함수 코드 실행 전
+            Person() 생성자 함수의 prototype 프로퍼티가 가리키는 
+            Person.prototype 객체를 [[Prototype]] 링크로 연결해서 
+            자신의 프로토타입으로 설정한 빈 객체를 생성하고
+            생성자 함수 코드에서 사용되는 this로 바인딩 된다.
+    */
+        this.name = name;   //  2. this가 가리키는 빈 객체에 name 프로퍼티를 동적 생성
+        
+        // 3. 리턴값이 특별히 없으므로 this로 바인딩한 빈 객체가 리턴값으로 반환돼서 foo 변수에 저장된다.
+    }
+
+    var foo = new Person('foo');
+
+    console.log(foo.name);      // foo
+```
+
+*객체 리터럴 방식과 생성자 함수를 통한 객체 생성 방식의 차이*
+<table>
+    <thead>
+        <tr>
+            <th>
+                구분
+            </th>
+            <th>
+                리터럴
+            </th>
+            <th>
+                생성자
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <th>
+                재생성 여부
+            </th>
+            <td>
+                불가능
+            </td>
+            <td>
+                가능
+            </td>
+        </tr>
+        <tr>
+            <th>
+                프로토타입 객체<br>(__proto__ 프로퍼티)
+            </th>
+            <td>
+                Object(Object.prototype)    
+            </td>
+            <td>
+                Person(Person.prototype)    
+            </td>
+        </tr>
+        <tr>
+            <th>
+                객체 생성자 함수
+            </th>
+            <td>
+                Object()    
+            </td>
+            <td>
+                생성자 함수 자체(Person())
+            </td>
+        </tr>
+    </tbody>
+</table>
+
+*예제 4-29 객체 생성 두가지방법(객체 리터럴 vs 생성자 함수)*
+```js
+    var foo = {
+        name: 'foo',
+        age: 35,
+        gender: 'man'
+    };
+
+    console.dir(foo);
+
+    function Person(name, age, gender, position) {
+        this.name = name;
+        this.age = age;
+        this.gender = gender;
+    }
+
+    var bar = new Person('bar', 33, 'woman');
+    console.dir(bar);
+
+    var baz = new Person('baz', 25, 'woman');
+    console.dir(baz);
+
+```
+
+*생성자 함수를 new를 붙이지 않고 호출할 경우*
+일반 함수 호출과 생성자 함수를 호출할 때 this 바인딩 방식이 다르기 때문에<br>
+객체 생성을 목적으로 작성한 생성자 함수를 new 없이 호출하거나 일반 함수를 new를 붙여서 호출할 경우 코드에서 오류가 발생 할수 있다.
+
+*예제 4-30 new를 붙이지 않고 생성자 함수 호출 시의 오류*
+```js
+    var qux = Person('qux', 20, 'man'); //  생성자함수를 new 없이 호출
+                                        //  this는 전역 객체로 바인딩 되고 의도와는 다르게 전역객체에 동적으로 프로퍼티가 생성된다.
+    
+    console.log(qux);                   //  일반 함수를 호출할 때는 undefined가 리턴된다.
+                                        //  undefined
+    
+    console.log(window.name);   //  qux
+    console.log(window.age);    //  20
+    console.log(window.gender); //  man
+
+```
+일반 함수와 생성자 함수의 구분이 없으므로, 생성자 함수로 사용하는 첫글자를 대문자로 표기하는 네이밍 규칙을 권장한다.<br>
+그러나 결국 new를 사용해서 호출 하지 않을 경우 코드의 에러가 발생한다.
+
+*강제로 인스턴스 생성하기*
+```js
+    function A (arg) {
+        if (!(this instanceof A)) {     // new로 호출이 안됬을 경우
+            return new A(arg);
+        }
+    /*   
+        if (!(this instanceof aruments.callee))
+
+        arguments.callee가 곧 호출된 함수를 가리킨다.
+        이와 같이 하면, 특정 함수 이름과 상관없이 
+        이 패턴을 공통을 공통으로 사용하는 모듈을 작성할 수 있는 장점이 있다.
+    */
+        this.value = arg ? arg : 0;
+    }
+
+    var a = new A(100);
+    var b = A(10);
+
+    console.log(a.value);       //  100
+    console.log(b.value);       //  10
+    console.log(global.value);  //  undefined
+```
+
+#### 4.4.2.4 call과 apply 메서드를 이용한 명시적인 this 바인딩 ####
+* this를 특정 객체에 명시적으로 바인딩시킨다.
+* 모든 함수의 부모 객체인 Function.prototype 객체의 메서드다.
+* 호출하는 주체가 함수고, this를 특정 객체에 바인딩 할 뿐 결국 본질적인 기능은 **함수호출**이다.
+* this를 원하는 값으로 명시적으로 매핑해서 특정 함수나 메서드를 호출 할 수 있는 장점이 있다.
+
+모든 함수는 다음과 같은 형식으로 메서드를 호출하는 것이 가능하다.
+```js
+    function.apply(thisArg, argArray);
+```
+<dl>
+    <dt>
+        thisArs
+    </dt>
+    <dd>
+        apply() 메서드를 호출한 함수 내부에서 사용한 this에 바인딩할 객체를 가리킨다.
+    </dd>
+    <dd>
+        this로 명시적으로 바인딩 된다.
+    </dd>
+    <dt>
+        argArray
+    </dt>
+    <dd>
+        함수를 호출할때 넘길 인자들의 배열을 가리킨다.
+    </dd>
+    <dd>
+        호출한 함수의 인자로 사용된다.
+    </dd>
+</dl>
+
+*예제 4-31 apply() 메서드를 이용한 명시적인 this 바인딩*
+```js
+    function Person(name, age, gender) {
+        this.name = name;
+        this.age = age;
+        this.gender = gender;
+    }
+
+    var foo = {};
+
+    Person.apply(foo, ['foo', 30, 'man']);  // Person('foo', 30, 'man') 함수를 호출 하면서, this를 foo객체에 명시적으로 바인딩한다.
+
+    console.dir(foo);   // { name: 'foo', age: 30, gender: 'man' }
+```
+
+call() 메서드의 경우는 기능은 같지만, 두 번째 인자에서 각각 하나의 인자로 넘긴다.
+```js
+    Person.call(foo, 'foo',30,'man');
+```
+*예제 4-32 apply() 메서드를 활용한 arguments 객체의 배열 표준 메서드 slice() 활용 코드*
+```js
+    function myFunction() {
+        console.dir(arguments); // __proto__ : Object.prototype
+    
+        arguments.shift();      //  유사 배열 객체이므로 shift() 메서드가 없다. 
+                                //TypeError: arguments.shift is not a function
+
+        var args= Array.prototype.slice.apply(arguments);   
+        //  Array.prototype.sice() 메서드를 호출해라. 이때 this는 arguments 객체로 바인딩해라.
+        // arguments.slice()와 같은 형태로 메서드 호출
+        // arguments 객체를 복사한 새로운 배열을 생성하여 리턴한다.
+        
+        console.dir(args);  // __proto__ : Array.prototype
+    }
+
+    myFunction(1,2,3);
+```
+<dl>
+    <dt>
+        <a target="_blank" href="https://developer.mozilla.org/ko/docs/Web/JavaScript/Reference/Global_Objects/Array/slice">slice() 메소드</a>
+    </dt>
+    <dd>
+        <code>arr.slice() arr.slice(begin) arr.slice(begin, end)</code>
+    </dd>
+    <dd>
+        slice() 메소드는 어떤 배열의 begin부터 end까지(end는 불포함)에 대한 shallow copy를 새로운 배열 객체로 반환합니다.<br>원본 배열은 수정되지 않습니다.
+    </dd>
+    <dd>
+        <dl>
+            <dt>
+                begin (Optiona)
+            </dt>
+            <dd>
+               0을 시작으로 하는 추출 시작점에 대한 인덱스를 의미합니다.
+            </dd>
+            <dd>
+                begin 이 undefined인 경우에는, 0번 인덱스부터 slice 합니다.
+            </dd>
+            <dt>
+                end (Optiona)
+            </dt>
+            <dd>
+                추출을 종료 할 0 기준 인덱스입니다. end 인덱스를 제외하고 추출합니다.
+            </dd>
+            <dd>
+                end가 생략되면 slice는 배열의 끝까지(arr.length) 추출합니다.
+            </dd>
+        <dl>
+    </dd>
+</dl>
+
+*예제 4-33 slice() 메서드 사용 예제*
+```js
+    var arrA = [1,2,3];    
+    var arrB = arrA.slice(0);   //  [1]
+    var arrC = arrA.slice();    //  [1,2,3]
+    var arrD = arrA.slice(1);   //  [1,2]  
+    var arrE = arrA.slice(1,2); //  [2]  
+```
+
+#### 4.4.3.1 규칙 1) 일반 함수나 메서드는 리턴값을 지정하지 않을 경우, undefined 값이 리턴된다. ####
+*예저 4-34 return 문 없는 일반 함수의 리턴값 확인*
+```js
+    var noReturnFunc = function () {
+        console.log('This function has no return statement');
+    }
+
+    var result = noReturnFunc();
+
+    console.log(result);    //  This function has no return statement
+                            //  undefined
+
+    // 메서드 리턴값  Test
+    Function.prototype.method = function(name, func) {
+        this.prototype[name] = func;
+    }
+
+    function NoReturn() {};
+
+    NoReturn.method('method', function () {
+        console.log('This method has no return statement');
+    });
+
+    var noReturn = new NoReturn();
+
+    console.log(noReturn.method());     //  This method has no return statement
+                                        //  undefined
+
+```
+
+#### 4.4.3.2 규칙 2) 생성자 함수에서 리턴값을 지정하지 않을 경우 생성된 객체가 리턴된다.####
+* 생성자 함수에서 별도의 리턴값을 지정하면 지정된 객체나 배열이 리턴된다
+* 생성자 함수에 지정한 별도의 리턴값이 객체가 아닌 불린,숫자,문자열의 경우<<br> 이러한 리턴값을 무시하고 this로 바인딩된 객체가 리턴된다.
+
+*예제 4-35 생성자 함수에서 명시적으로 객체를 리턴했을 경우*
+```js
+    function Person(name, age, gender) {
+        this.name = name;
+        this.age = age;
+        this.gentder = gender;
+
+        return {name: 'bar', arg:20, gender:'woman'};
+    }
+
+    var foo = new Person('foo', 30, 'man'); // 새로 생성되는 foo 객체가 아니라, 리턴값에서 명시적으로 넘긴 객체나 배열이 리턴된다
+    
+    console.dir(foo);   
+```
+
+*예제 4-38 생성자 함수에서 명시적으로 기본타입(불린, 숫자, 문자열) 값을 리턴했을 경우*
+```js
+    function Person(name, age, gender) {
+        this.name = name;
+        this.age = age;
+        this.gentder = gender;
+
+        return 100;
+    }
+
+    var foo = new Person('foo', 30, 'man');
+    console.log(foo);   //  Person {name;"foo", age:30, gender:"man"}
+
+```
+<table>
+    <caption style="font-size:24px;font-weight:bold;text-align:left;">ISSUE LIST</caption>
+    <colgroup>
+        <col style="width:10%">
+        <col style="width:45%">
+    </colgroup>
+    <thead>
+        <tr>
+            <th>
+                페이지
+            </th>
+            <th>
+                내용
+            </th>
+             <th>
+                풀이
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+               103 ~ 104
+            </td>
+            <td>
+                <a href="#4-24">
+                    4.4.2.2 함수를 호출할 때 this 바인딩<br>
+                    .....<br>
+                    전역 객체란 무엇인가?? (브라우저, Node.js)<br>
+                    .....<br>
+                    <storng>자바스크립트의 모든 전역 변수는 실제로는 이러한 전역 객체의 프로퍼티 들이다</strong>
+                </a>
+            </td>
+            <td>
+            </td>
+        </tr>
+    </tbody>
+</table>
