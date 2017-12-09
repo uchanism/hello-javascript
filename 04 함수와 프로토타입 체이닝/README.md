@@ -1006,6 +1006,209 @@ call() 메서드의 경우는 기능은 같지만, 두 번째 인자에서 각�
     console.log(foo);   //  Person {name;"foo", age:30, gender:"man"}
 
 ```
+
+## 4.5 프로토타입 체이닝 ##
+프로토타입 기반의 객체지향 프로그래밍을 지원한다.
+
+### 4.5.1 프로토타입의 두 가지 의미###
+* 생성자 함수의 **prototype 프로퍼티**는 자신과 링크된 프로토타입 객체를 가르킨다.
+* 생성된 객체는 생성자 함수의 프로토타입 객체를 **[[Prototype]]** 링크로 연결한다.
+* **실제 부모 역활**을 하는 건 생성자 자신이 아닌 생성자의 prototype 프로퍼티가 가리키는 **프로토타입 객체**다.
+* 생성자 함수, 생성된 객체, 프로토타입 객체는 삼각관계다.
+
+*예제 4-37 prototype 프로퍼티와 [[Prototype]] 링크 구분*
+```js
+    function Person(name) {
+        this.name = name;
+    }
+
+    var foo = new Person('foo');
+
+    console.dir(Person);
+    console.dir(foo);
+```
+
+### 4.5.2 객체 리터럴 방식으로 생성된 객체의 프로토타입 체이닝 ###
+* 자신의 부모 역활을 하는 프로타입 객체의 프로퍼티를 자신의 것처럼 접근 가능하다.
+* 객체 리터럴로 생성한 객체는 Object()라는 내장 생성자 함수로 생성된 것이다.
+
+<dl>
+    <dt><strong>프로토타입 체이닝</strong><dt>
+    <dd>
+        특정 객체의 프로퍼티나 메서드에 접근하려고 할 때, 접근하려는 프로퍼티 또는 메서드가 없다면 [[Prototype]] 링크를 따라 자신의 부모 역활을 하는 프로토 타입 객체의 프로퍼티를 차례대로 검색한다
+    </dd>
+</dl>
+
+*예제 4-38 객체 리터럴 방식에서의 프로토타입 체이닝*
+```js
+    var myObject = {
+        name: 'foo',
+        sayName : function () {
+            console.log('My Name is ' + this.name);
+        }
+    }
+
+    myObject.sayName();                                 //  My Name is foo
+
+    /*
+        Object.prototype 객체(모든 객체의 조상 객체)의 hasOwnProperty 프로퍼티 접근
+    */
+    console.log(myObject.hasOwnProperty('name'));       // true
+    console.log(myObject.hasOwnProperty('nickName'));   // false
+    
+    myObject.sayNickName();                             // Object.prototype 객체에도 없으므로 에러 발생
+                                                        // myObject.sayNickName is not a function
+```
+
+<dl>
+    <dt>
+        hasOwnProperty() 메서드    
+    </dt>
+    <dd>
+        호출한 객체에 인자로 넘긴 문자열 이름의 프로퍼티나 메서드가 있는 지<br> 체크하는 자바스크립트 표준 API 함수다.
+    </dd>
+</dl>
+
+### 4.5.3 생성자 함수로 생성된 객체의 프로토타입 체이닝 ###
+리터럴 방식과 약간 다른 프로토타입 체이닝이 이뤄진다.
+
+*예제= 4-39 생성자 함수 방식에서의 프로토타입 체이닝*
+```js
+    function Person(name, age, hobby) {
+        this.name = name;
+        this.age = age;
+        this.hobby = hobby;
+    }
+
+    var foo = new Person('foo', 20, 'tennis');      //  foo 객체의 프로토타입 객체는 Person.prototype 된다.
+
+    console.log(foo.hasOwnProperty('name'));        //  Person.prototype도 역시 객체이므로 Object.prototype을 프로토 타입 객체로 가진다.
+                                                    //  프로토타입 체이닝은 Object.prototype 객체로 계속 이어진다.
+                                                    //  true
+
+    console.dir(Person.prototype);
+```
+
+### 4.5.4 프로토타입 체이닝 종점 ###
+* Object.prototype 객체는 **프로토타입 체이닝의 종점**이다.
+* 객체 생성 방식에 상관없이 모든 객체는 프로토타입 체이닝으로 Object.prototype 객체가 가진 프로퍼티와 메서드에 접근하고, 서로 공유가 가능하다.
+* Object.prototype에는 모든 객체가 호출 가능한 표준 메서들이 정의되어 있다.
+
+### 4.5.5 기본 데이터 타입 확장 ###
+* 기본 데이터 타입의 표준 메서드들은 Number.prototype, String.prototype, Array.prototype 등에 정의되어 있다.
+* 기본 내장 프로토타입 객체 또한 Object.prototype을 자신의 프로로타입으로 가지고 있어 프로토타입 체이닝으로 연결된다.
+* Object.prototype, String.prototype 등과 같이 표준 빌트인 프로토타임 객체에도 사용자가 직접 정의한 메서드을 추가하는 것을 허용한다.
+
+*예제 4-40 String 기본 타입에 메서드 추가*
+```js
+    String.prototype.testMethod = function (){
+        console.log('This is the String.protoype.testMethd()');
+    };
+
+    var str = "this is test";
+    str.testMethod();
+
+    console.dir(String.prototype);      // String.prototype 객체에 testMethod가 추가된 것을 확인할 수 있다.
+```
+
+### 4.5.6 프로토타입도 자바스크립트 객체다 ###
+* 프로토타입 객체에 동적으로 프로퍼티를 추가/삭제하는 것이 가능하다.
+* 변경된 프로퍼티는 실시간으로 프로토타입 체이닝에 반영된다.
+
+*예제 4-41 프로토타입 객체의 동적 메서드 생성 예제코드*
+```js
+    function Person(name) {
+        this.name = name;
+    }
+
+    var foo = new Person('foo');
+
+    //foo.sayHello();     // error
+
+    Person.prototype.sayHello = function() {
+        console.log('Hello');
+    }
+
+    foo.sayHello();     // Hello
+```
+
+### 4.5.7 프로토타입 메서드와 this 바인딩 ###
+메서드 호출 패턴이므로 호출한 객체에 this가 바인딩된다.
+
+*예제 4-42 프로토타입 메서드와 this바인딩*
+```js
+    function Person(name) {
+        this.name = name;
+    }
+
+    Person.prototype.getName = function() {
+        return this.name;
+    }
+
+    var foo = new Person('foo');
+
+    console.log(foo.getName());     //  프로토타입 체이닝 Person.prototype.getName() 호출
+                                    // foo
+
+    //Person.prototype.name = 'person';
+
+    console.log(Person.prototype.getName());    // this가 Person.prototype 객체에 바인딩 된다.
+                                                // person
+```
+
+#### 4.5.8 디폴트 프로토타입은 다른 객체로 변경이 가능하다 ###
+* 디폴트 프로토타입 객체를 다른 일반 객체로 변경하는 것이 가능하다.
+* 프로토타입 객체가 변경되면, 변경된 시점 이후에 생성된 객체들은 변경된 프로토타임 객체로 [[Prototype]] 링크를 연결한다. <br>이에 반해 변경되기 이전에 생성된 객체들은 기존 프로토타입 객체로서의 [[Prototype]] 링크를 그대로 유지한다.
+
+*예제 4-43 프로토타입 객체변경*
+```js
+    function Person(name) {
+        this.name = name;
+    }
+
+    console.log(Person.prototype.constructor);  //  function Person()
+
+    var foo = new Person('foo');
+    console.log(foo.country);   //  foo객체와 디폴트 프로토타입 Person.prototype 객체에도 country 프로퍼티는 없다.
+                                //  undefined
+
+    Person.prototype = {        // 리터널 방식으로 생성한 객체로 디폴트 프로토타입 변경
+        country : 'korea',
+    };
+
+    console.log(Person.prototype.constructor);  //  변경된 프로토타입에는 constructor 프로퍼티가 없다.
+                                                //  프로토타입 체이닝이 발생되어 Object.prototype.constructor가 호출된다.
+                                                //  Object()
+
+    var bar = new Person('bar');    //  새로 변경된 프로토타입 객체를 [[Prototype]] 링크로 가르키게 된다.
+    console.log(foo.country);       // undefined
+    console.log(bar.country);       // korea
+    console.log(foo.constructor);   // function Person()
+    console.log(bar.constructor);   // Object()
+
+```
+
+### 4.5.9 객체의 프로퍼티 읽기나 메서드를 실행할 때만 프로토타입 체이닝이 동작한다 ###
+객체에 있는 특정 프로퍼티에 값을 쓰려고 하는 경우 당연히 프로토타입 체이닝이 일어나지 않는다.
+
+*예제 4-44 프로토타입 체이닝과 동적 프로퍼티 생성*
+```js
+    function Person(name) {
+        this.name = name;
+    }
+
+    Person.prototype.country = 'Korea';
+
+    var foo = new Person('foo');
+    var bar = new Person('bar');
+    console.log(foo.country);       //  Koera
+    console.log(bar.country);       //  Koera
+    
+    foo.country = 'USA';            //  당연히 프로토타입 체이닝이 동작되지 않고 foo 객체에 country 프로퍼티값이 동적으로 생성된다.
+
+    console.log(foo.country);       //  USA
+    console.log(bar.country);       //  Koera
+```
 <table>
     <caption style="font-size:24px;font-weight:bold;text-align:left;">ISSUE LIST</caption>
     <colgroup>
