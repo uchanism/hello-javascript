@@ -109,7 +109,7 @@ this 키워드를 사용하는 값이 할당된다
     </dd>
 </dl>
 
-<em>Node.js에서의 최상위 코드는 전역 코드가 아니다</em>
+<em><strong>Node.js에서 최상위 코드는 전역 코드가 아니다</strong></em><br>
 일반적으로 자바스크립트 파일, 이를테면 filename.js가 하나의 모듈로 동작하고 이 파일의 최상위에 변수를 선언해도 **그 모듈의 지역 변수**가 된다.<br> 하지만 var를 사용하지 않을 경우 전역 객체인 global에 들어가고, 이는 전역 객체를 오염시키는 원인이 되므로 주의해야 한다.
 ```js
     var a = 10;
@@ -117,4 +117,103 @@ this 키워드를 사용하는 값이 할당된다
 
     console.log(global.a);  //  undefined
     console.log(global.b);  //  15
+```
+## 5.3 스코프 체인 ##
+* 유효 범위를 나타낸다.
+* 현재 사용되는 변수가 어디에 선언된 변수인지 정확히 알 수 있다.
+* 오직 **함수만이 유효 범위의 한 단위**가 된다.
+* [[scope]] 프로퍼티로 각 함수 객체 내에서 연결 리스트 형식으로 관리된다.
+* 각 실핼 컨텍스트의 변수 객체가 구성요소인 리스트다.
+* 각각의 함수는 [[scope]] 프로퍼티로 **자신이 생성된 실행 컨텍스트의 스코프 체인을 참조**한다.
+* 실행된 함수의 [[scope]] 프로퍼티를 기반으로 새로운 스코프 체인을 만든다.
+
+
+### 5.3.1 전역 실행 컨텍스트의 스코프 체인 ###
+*예제 5-3*
+```js
+    //  1. 전역 컨텍스트 생성
+    //  2. 변수 객체 생성
+    //  3. 변수 객체 자신을 가리키는 스코프 체인 생성
+    //  4. var1,2 생성 
+    //  5. 전역 객체 this 바인딩
+    var var1 = 1;
+    var var2 = 2;
+
+    console.log(var1);  //  1
+    console.log(var2);  //  2
+```
+
+### 5.3.2 함수를 호출한 경우 생성되는 실행 컨텍스트의 스코프 체인 ###
+*예제 5-4*
+```js
+    var var1 = 1;
+    var var2 = 2;
+    
+    function func() {
+        var var1 = 10;
+        var var2 - 20;
+        console.log(var1);  //  10
+        console.log(var2);  //  20
+    }
+
+    func();
+
+    console.log(var1);  //  1
+    console.log(var2);  //  2
+    
+    /*
+        1. 전역 실행 컨텍스트 생성
+        2. 변수 객체 생성
+        3. 변수 객체 자신을 가리키는 스코프 체인 생성
+        4. 변수 var1, var2, 함수 func 생성
+        5. 전역 객체 this 바인딩
+        6. 함수 func 실행 컨텍스트 생성
+        7. 변수 객체 생성
+        8. 0 전역 변수 객체, 1 func 변수 객체를 가리키는 스코프 체인 생성
+        9. 변수 var1, var2 생성 
+       10. 전역 객체 this 바인딩
+    */
+```
+<dl>
+    <dt>
+        스코프 체인 생성법
+    </dt>
+    <dd>
+        스코크 체인 = 현재 실행 컨텍스트의 변수 객체 + 상위 컨텍스트의 스코프 체인
+    </dd>
+    <dd>
+        현재 실행되는 함수 객체의 [[scope]] 프로퍼티를 복사하고, 새롭게 생성된 변수 객체를 해당 체인 <strong>제일 앞에</strong> 추가한다.
+    </dd>
+</dl>
+
+*예제 5-5*
+```js
+    var value = "value1";
+
+    function printFunc() {
+        var value = "value2";
+
+        function printValue() {
+            return value;
+        }
+
+        console.log(printValue());
+    }
+    
+    printFunc();    //  vluae2
+    
+    /*
+        1. 전역 실행 컨텍스트 생성
+        2. 변수 객체 생성
+        3. 변수 객체 자신을 가리키는 스코프 체인 생성
+        4. 변수 value, 함수 printFunc 생성
+        5. 전역 객체 this 바인딩
+        6. printFunc 실행 컨텍스트 생성
+        7. printFunc 변수 객체 생성
+        8. 0 전역 변수 객체, 1 printFunc 변수 객체를 가리키는 스코프 체인 생성
+        9. 변수 value, 함수 printValue 생성
+       10. printValue 실행 컨텍스트 생성
+       11. printValue 변수 객체 생성.
+       12. 0 전역 변수 객체, 1 printFunc 변수 객체 2 printValue 변수 객체를 가리키는 스코프 체인 생성
+    */
 ```
