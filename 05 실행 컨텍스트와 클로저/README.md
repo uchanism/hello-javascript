@@ -284,3 +284,121 @@ this 키워드를 사용하는 값이 할당된다. 여기서 this가 참조하�
 4. 스코프 체인 생성
 5. 함수안에 정의된 변수 및 함수 생성
 6. this 바인딩
+
+## 5.4 클로저 ##
+### 5.4.1 클로저의 개념 ###
+이미 생명 주기가 끝난 외부 함수의 변수를 참조하는 함수를 클로저라고 한다.
+
+*예제 5-7*
+```js
+    function outerFunc() {
+        var x = 10;         // x : 자유 변수
+        var innerFunc = function() { console.log(x); }
+        return innerFunc;   // innerFunc : 클로저
+    }
+    
+    var inner = outerFunc();
+    inner();    //  10;
+    
+    /*
+        1. 전역 실행 컨텍스트 생성
+        2. 변수 객체 생성
+        3. 0 전역 변수 객체를 가리키는 스코프 체인 생성
+        4. 함수 outerFunc, 변수 inner 생성
+        5. outerFunc 실행 컨텍스트 생성
+        6. outerFunc 변수 객체 생성
+        7. 0 전역 변수 객체, 1 outerFunc 변수 객체를 가리키는 스코프 체인 생성
+        8. 변수 x, 함수 변수 innerFunc 생성
+        9. innerFunc 실행 컨텍스트 생성
+       10. innerFunc 변수 객체 생성
+       11. 0 전역 변수 객체, 1 outerFunc 변수 객체, 2 innerFunc 변수 객체를 가리키는 스코프 체인 생성
+    */
+```
+*예제 5-8*
+```js
+    function outerFunc(arg1, arg2){
+        var local = 8;
+        function innerFunc(innerArg){
+            console.log((arg1 + arg2)/(innerArg + local));
+            // 2 + 4/2 + 8 
+        }
+        return innerFunc;
+    }
+
+    var exam1 = outerFunc(2, 4);
+    exam1(2);   // 0.6
+
+    /*
+    
+    */
+```
+
+### 5.4.2 클로저의 활용 ###
+클로저는 성능적인 면과 자원적인 면에서 약간 손해를 볼 수 있으므로 무차별적으로 사용해서는 안된다.
+
+#### 5.4.2.1 특정 함수에 사용자가 정의한 객체의 메서드 연결하기 ####
+*예제 5-9*
+```js
+    function HelloFunc(func) {
+        this.greeting = 'hello';
+    }
+
+    HelloFunc.prototype.call = function(func) {
+        func ? func(this.greeting) : this.func(this.greeting);
+    }
+
+    var userFunc = function(greeting) {
+        console.log(greeting);
+    }
+
+    var objHello = new HelloFunc();
+    objHello.func = userFunc;
+    objHello.call();        //  hello                
+```
+
+*예제 5-10*
+```js
+    /* 예제 5-9 START */
+    function HelloFunc(func) {
+        this.greeting = 'hello';
+    }
+
+    HelloFunc.prototype.call = function(func) {
+        func ? func(this.greeting) : this.func(this.greeting);
+    }
+
+    var userFunc = function(greeting) {
+        console.log(greeting);
+    }
+
+    var objHello = new HelloFunc();
+    objHello.func = userFunc;
+    objHello.call();        //  hello  
+    /* 예제 5-9  END */
+
+    function saySomething(obj, methodName, name) {
+        return (function(greeting) {
+            return obj[methodName](greeting, name);
+        });
+    }
+    /*  saySomething() 작업 수행 과정
+        
+        * 첫 번째 인자 : newObj 객체 - obj1
+        * 두 번째 인자 : 사용자가 정의한 메서드 이름 - "who"
+        * 세 번재 인자 : 사용자가 원하는 사람 이름 값 - "zzoon"
+        * 반환 : 사용자가 정의한 newObj.prototype.who() 함수를 반환하는 helloFunc()의 func함수
+    */
+
+    function newObj(obj, name) {
+        obj.func = saySomething(this, "who", name);
+        return obj;
+    }
+
+    newObj.prototype.who = function(greeting, name) {
+        console.log(greeting + " " + (name || "everyown") );
+    }
+
+    var obj1 = new newObj(objHello, "zzoon");
+
+    obj1.call();     //  hello zzoon
+```
