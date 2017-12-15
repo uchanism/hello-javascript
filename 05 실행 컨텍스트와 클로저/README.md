@@ -367,7 +367,7 @@ this 키워드를 사용하는 값이 할당된다. 여기서 this가 참조하�
         func ? func(this.greeting) : this.func(this.greeting);
     }
 
-    var userFunc = function(greeting) {
+    var userFunc = function (greeting) {
         console.log(greeting);
     }
 
@@ -377,17 +377,10 @@ this 키워드를 사용하는 값이 할당된다. 여기서 this가 참조하�
     /* 예제 5-9  END */
 
     function saySomething(obj, methodName, name) {
-        return (function(greeting) {
-            return obj[methodName](greeting, name);
+        return (function(greeting) {                    //  클로저 : 익명 함수
+            return obj[methodName](greeting, name);     //  자유변수 : obj, methodName, name 
         });
     }
-    /*  saySomething() 작업 수행 과정
-        
-        * 첫 번째 인자 : newObj 객체 - obj1
-        * 두 번째 인자 : 사용자가 정의한 메서드 이름 - "who"
-        * 세 번재 인자 : 사용자가 원하는 사람 이름 값 - "zzoon"
-        * 반환 : 사용자가 정의한 newObj.prototype.who() 함수를 반환하는 helloFunc()의 func함수
-    */
 
     function newObj(obj, name) {
         obj.func = saySomething(this, "who", name);
@@ -400,5 +393,48 @@ this 키워드를 사용하는 값이 할당된다. 여기서 this가 참조하�
 
     var obj1 = new newObj(objHello, "zzoon");
 
+    /*  var obj1 = new newObj(objHello, "zzoon"); 실행 과정
+
+        1. objHello.func = saySomething(newObj, "who", "zzoon");
+        2. objHello.func = (function(greeting) { return  obj[methodName](greeting, name);});
+        3. return obj1 = objHello;
+    */
+
+
     obj1.call();     //  hello zzoon
+    
+    /*  obj1.call() 실행 과정
+
+        1. function(func) {
+                func ? func(this.greeting) : obj1.func(obj1.greeting);
+           }
+        2. function(greeting) { 
+                return  obj[methodName](greeting, name)
+           };
+        3. return newObj["who"](obj1.greeting, "zzoon");
+    */  
+```
+
+*인자 event 외의 원하는 인자를 더 추가한 이벤트 핸들러 만들기*
+```html
+    <!DOCTYPE html>
+    <html>
+        <head>
+            <title></title>
+        </head>
+        <body>
+            <button type="button">click!</button>    
+        </body>
+        <script type="text/javascript">
+            (function() {
+                var btn = document.getElementByTagName('button');
+
+                btn.onclick = showAlert;
+                
+                function showAlert(event) {
+                    alert("btn click");
+                }
+            })();
+        </script>
+    </html>
 ```
