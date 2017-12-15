@@ -423,18 +423,82 @@ this 키워드를 사용하는 값이 할당된다. 여기서 this가 참조하�
             <title></title>
         </head>
         <body>
-            <button type="button">click!</button>    
+            <!-- <button type="button">click!</button>     -->
         </body>
         <script type="text/javascript">
-            (function() {
-                var btn = document.getElementByTagName('button');
-
-                btn.onclick = showAlert;
-                
-                function showAlert(event) {
-                    alert("btn click");
-                }
-            })();
+           
         </script>
     </html>
+```
+
+#### 5.4.2.2 함수의 캡슐화 ####
+"I am XXX. I live in XXX. I'am XX years old" 라는 문장을 출력하는데,<br>
+**XX** 부분은 사용자에게 인자로 입력 받아 값을 출력하는 함수
+
+*예제 5-11*
+```js
+    var buffAr = [
+        'I am ',
+        ``,
+        `. I live in`,
+        ``,
+        `. I\`am `,
+        ``,
+        ` years old.`,
+    ];
+    
+    function getCompletedStr(name, city, age) {
+        buffAr[1] = name;
+        buffAr[3] = city;
+        buffAr[5] = age;
+
+        return buffAr.join(``);
+    }
+
+    var str = getCompletedStr('zzoon', 'seoul', 16);
+    console.log(str);
+```
+
+클로저를 활용하여 전역변수 배열 buffAr 사용 시, 야기되는 여러가지 문제를 해결할 수 있다.
+
+*예제 5-12*
+```js
+    var getCompletedStr = (function() {
+        var buffAr = [      // 지역 변수, 자유 변수      
+            'I am ',
+            ``,
+            `. I live in `,
+            ``,
+            `. I\`am `,
+            ``,
+            ` years old.`,
+        ];
+
+        return (function(name, city, age) {     // 클로저
+            buffAr[1] = name;
+            buffAr[3] = city;
+            buffAr[5] = age;
+
+            return buffAr.join('');
+        });
+    })();
+    
+    var str = getCompletedStr('zzoon', 'seoul', 16);
+    
+    console.log(str);       //  I am zzoon. I live inseoul. I`am 16 years old.
+
+    /*
+        1. 전역 실행 컨텍스트 생성
+        2. 전역 변수 객체 생성
+        3. 0 전역 변수 객체를 가리키는 스코프 체인 생성
+        4. 변수 getCompletedStr, str, 익명 함수1 생성
+        5. 익명함수1 실행 컨텍스트 생성
+        6. 익명함수1 변수 객체 생성
+        7. 0 전역 변수 객체, 1 익명 함수1 변수 객체를 가리키는 스코프 체인 생성
+        8. 배열 변수 buffAr, 익명 함수2 생성
+        9. 익명 함수2 실행 컨텍스트 생성
+       10. 익명 함수2 변수 객체 생성
+       11. arguments 객체 생성
+       12. 0 전역 변수 객체, 1 익명 함수1 변수 객체, 2 익명 함수2 변수 객체를 가리키는 스코프 체인 생성
+    */
 ```
