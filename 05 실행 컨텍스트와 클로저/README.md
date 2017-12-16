@@ -502,3 +502,100 @@ this 키워드를 사용하는 값이 할당된다. 여기서 this가 참조하�
        12. 0 전역 변수 객체, 1 익명 함수1 변수 객체, 2 익명 함수2 변수 객체를 가리키는 스코프 체인 생성
     */
 ```
+
+#### 5.4.2.3 setTimeout()에 지정되는 함수의 사용자 정의 ####
+<dl>
+    <dt>
+        <a href="https://developer.mozilla.org/ko/docs/Web/API/WindowTimers/setTimeout">setTimeout()</a>
+    </dt>
+    <dd>
+        타이머가 만료된 뒤 함수나 지정된 코드를 실행하는 타이머를 설정합니다.
+    </dd>
+</dl>
+
+넘겨지는 첫번째 인자인 자신이 정의한 함수에 인자를 넣어줄 수 있게 하는 클로저 활용법
+*예제 5-13*
+```js
+     function callLater(obj, a, b) {        // 자유 변수 obj, a, b
+        return (function() {                // 클로저
+            obj["sum"] = a + b;
+                console.log(obj["sum"]);
+        });
+    }
+
+    var sumObj = {
+        sum : 0
+    };
+
+    var func = callLater(sumObj, 1, 2);
+    setTimeout(func, 500);
+```
+### 5.4.3 클로저를 활용할 때 주의사항 ###
+
+#### 5.4.3.1 클로저의 프로퍼티값이 쓰기 기능하므로 값이 여러 번 호출로 항상 변할 수 있음에 유의해야 한다. ####
+
+*예제 5-14*
+```js
+    function outerFunc(argNum) {
+        var num = argNum;           // 호출때 마다 자유 변수 num 값은 변한다.
+        console.log(num);
+        return function(x) {
+            num += x;
+            console.log('num: ' + num);
+        }
+    }
+
+    var exam = outerFunc(40);
+    exam(5);
+    exam(-10);
+```
+
+#### 5.4.3.2 하나의 클로저가 여러 함수 객체의 스코프 체인에 들어가 있는 경우도 있다 ####
+*예제 5- 15*
+```js
+    function func() {
+        var x = 1;                            
+        return {
+            /*
+                두 개의 함수 모드 자유 변수 x를 참조한다
+                각각 호출 될때마다 x값이 변화한다.
+            */
+            func1 : function(++x) {console.log(++x);},  
+            func2 : function(-x); {console.log(-x)}
+        };
+    };
+
+    var exam = func();
+    exam.func1();
+    exam.func2();
+```
+#### 5.4.3.3 루프 안에서 클로저를 활용할 때 주의하자 ####
+*예제 5-16*
+```JS
+    /*
+        1,2,3,4를 1초 간격으로 출력하는 함수
+    */
+    function countSeconds(howMany) {
+        for (var i = 1; i <= howMany;  i++) {
+            setTimeout(function() {     // 인자로 들어가는 익명함수는 자유 변수 i를 참조한다.
+                console.log(i);         // 실행 전 이미 countSeconds() 함수는 실행이 종료된다.
+            }, i * 1000);
+        }
+    };
+    countSeconds(3);    //  의도와는 다르게 4가 출력된다.
+```
+
+*예제 5-16 해결*
+```js
+    function countSeconds(howMany) {
+        for (var i = 1; i <= howMany; i++) {
+            (function(currentI) {           //           
+                setTimeout(function(){
+                    console.log(currentI);
+                }, currentI * 1000);
+            }(i));
+        }
+    }
+
+    countSeconds(3);
+```
