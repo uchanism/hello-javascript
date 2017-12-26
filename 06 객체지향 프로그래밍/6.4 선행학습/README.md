@@ -113,7 +113,7 @@
         함수 factory()
 
         - 실행 환경은 브라우저를 전제로 한다.
-        - 호출한 클래스를 상속받은 자식 클래스를 만들어 리턴한다.
+        - 호출한 클래스(부모 클래스)를 상속받은 자식 클래스를 만들어 리턴한다.
         - factory 함수 체이닝을 위해 리턴 될 자식 클래스 프로퍼티에 factory 함수를 할당 한다.
     */
     function factory() {
@@ -132,22 +132,23 @@
         */
 
 
-        var F = function(){}
+        var F = function(){}        // 부모 클래스의 프로토타입과 자식 클래스의 프로토타입을 연결하는 브릿지 클래스 생성
 
-        var target = function(){}
+        var target = function(){}   // 리턴될 자식 클래스 생성
 
-        F.prototype = parent.prototype;
-        target.prototype = new F();
+        F.prototype = parent.prototype;     // 프로토타입 체인 구성(부모 클래스의 프로토타입을 가르키는 브릿지 클래스 F)
+        
+        target.prototype = new F();         // 프로토타입 체인을 이용한 부모 클래스 상속
 
-        target.prototype.constructor = target;
+        // 계층 구조를 확인하기 위해 생성자 및 속성에 참조 변수(부모, 자식 클래스) 할당
+        target.prototype.constructor = target;  // 자식 클래스 할당
+        target.parent = parent;                 // 부모 클래스 할당
 
-        target.parent = parent;
+        target.level = parent.level ? parent.level + 1 : 1;     //  함수 체이닝 레벨 확인을 위해 level 프로퍼티에 레벨 할당
 
-        target.level = parent.level ? parent.level + 1 : 1;
+        target.factory = factory;   // 함수 체이닝위해 factory 함수 할당
 
-        target.factory = factory;
-
-        return target;
+        return target; 
     }
 
     var A = factory();
