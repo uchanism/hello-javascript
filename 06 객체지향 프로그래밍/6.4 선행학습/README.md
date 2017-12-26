@@ -85,5 +85,73 @@
 함수 체이닝 내부에서 this는 함수를 호출한 객체를 바인딩 한다.
 
 *함수 체이닝의 this 계층(트리구조)*
+```js
+    function CreateTree(name){
+        var upTree = this;      // CreateTree 함수를 호출한 객체
+        function tree(){        // 리턴될 클래스 생성
+
+        }
+                                        // 리턴될 클래스에 프로퍼티 생성
+        tree._name = name;              // name 할당 
+        tree.upTree = upTree;           // CreateTree 함수를 호출한 객체 할당
+        tree.CreateTree = CreateTree;   // 함수 재귀 체이닝을 위해 리턴될 클래스에 CreateTree 함수 할당
+
+        return tree;
+    }
+
+    var tree = CreateTree('level 1 tree')               // 1. 리턴 받은 tree 클래스
+                    .CreateTree('level 2 tree')         // 2. tree 클래스(1. 리턴 받은 tree 클래스)의 프로퍼티로 정의된 CreateTree 메소드 호출 → 리턴 받은 tree 클래스
+                        .CreateTree('level 3 tree');    // 3. tree 클래스(2. 리턴 받은 tree 클래스)의 프로퍼티로 정의된 CreateTree 메소드 호출 → 리턴 받은 tree 클래스
+
+    console.dir(tree);
+```
 
 
+*트리구조 함수 체이닝을 적용한 factory 함수*
+```js
+    /*
+        함수 factory()
+
+        - 실행 환경은 브라우저를 전제로 한다.
+        - 호출한 클래스를 상속받은 자식 클래스를 만들어 리턴한다.
+        - factory 함수 체이닝을 위해 리턴 될 자식 클래스 프로퍼티에 factory 함수를 할당 한다.
+    */
+    function factory() {
+        var parent = this === window ? Function : this;
+        /*  
+            parent 변수 : 호출한 클래스
+            
+            factory 함수 최초 호출 시 함수 내부의 this는 전역 객체인 window가 된다.
+            최초 호출 시에 처리를 위해 모든 함수(클래스)의 부모역활을 하는 Function을 할당 한다. 
+
+            
+            호출한 객체가 window가 아닌 factory함수로 생성 된 클래스이면
+            ex) A.factory();
+
+            parent는 A클래스가 된다.
+        */
+
+
+        var F = function(){}
+
+        var target = function(){}
+
+        F.prototype = parent.prototype;
+        target.prototype = new F();
+
+        target.prototype.constructor = target;
+
+        target.parent = parent;
+
+        target.level = parent.level ? parent.level + 1 : 1;
+
+        target.factory = factory;
+
+        return target;
+    }
+
+    var A = factory();
+    var B = A.factory();
+    var C = B.factory();
+    console.dir(C);
+```
