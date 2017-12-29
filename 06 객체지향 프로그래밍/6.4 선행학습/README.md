@@ -47,7 +47,7 @@
 ```js
     function factory() {
 
-        var target = function() {              // 클래스 생성(초기화)
+        var target = function() {              // 클래스 생성
 
         }
 
@@ -146,7 +146,7 @@
 
         target.level = parent.level ? parent.level + 1 : 1;     //  함수 체이닝 레벨 확인을 위해 level 프로퍼티에 레벨 할당
 
-        target.factory = factory;   // 함수 체이닝위해 factory 함수 할당
+        target.factory = aguments.callee;   // 함수 체이닝위해 factory 함수 할당
 
         return target; 
     }
@@ -155,4 +155,113 @@
     var B = A.factory();
     var C = B.factory();
     console.dir(C);
+```
+## 트리 구조의 클래스에서 생성자로 콜 되었을 경우 ##
+*생성자 함수로 실행시 this 바인딩*
+```js
+    var Aclass = function(name) {
+        this.name = name;
+    }
+    
+    var Bclass = function(age) {
+        this.age = age;
+    }
+    
+    var Cclass = function(job) {
+        this.job = job;
+    }
+
+    // 각 클래스를 this 바인딩 후 초기화
+    var init = function (name, age, job) {
+        Aclass.call(this, name);
+        Bclass.call(this, age);
+        Cclass.call(this, job);
+    }
+
+    var abcObj = new init("chanhyun", 29, "developer");
+
+    console.dir(abcObj);
+```
+*트리구조 클래스 초기화*
+
+```js
+
+    /*
+        var init = function(func, arg1, arg2, age3, argN....){ .... }
+
+        아래를 전제로 실행한다.
+        - 클래스 초기화는 역 주행 순을 고려하여 인자를 전달한다. 
+        - 초기화되는 첫번째 인자는 콜백함수다. 
+    */
+    var Aclass = function(name) {
+        this.name = name;
+    }
+    
+    var Bclass = function(age) {
+        this.age = age;
+    }
+    
+    var Cclass = function(job) {
+        this.job = job;
+    }
+
+    Aclass.parent = Bclass;
+    Bclass.parent = Cclass;
+
+    // factorial 패턴을 활용하여 트리 형태로 된 클래스를 역주행
+    var init = function(func, job, name, age){
+
+
+        if(func.parent){
+            arguments.callee.call(this, func.parent, job, name, age);
+            /*
+                1. arguments.callee.call(Bclass "dev", 29, "ych") 실행 컨택스트 생성
+                    
+                    function(Bclass, "dev", 29, "ych" ){  
+                        if(func.parent){
+                            arguments.callee.call(this, func.parent, job, name, age);
+                        };
+                        
+                        ........
+                    };
+                
+                2. arguments.callee.call(Cclass "dev", 29, "ych") 실행 컨택스트 생성
+                    function(Cclass, "dev", 29, "ych" ){  
+                        if(func.parent){
+                            arguments.callee.call(this, func.parent, job, name, age);
+                        };
+                        
+                        ........
+                    };
+
+            */
+        }
+        
+        // argument의 인덱스(초기화 시, 전달 되는 인자의 인덱스) =  slice(시작 인덱스(부모 클래스 갯수) + 마지막 인덱스(부모 클래스 갯수 + 맴버 변수 갯수 ))
+
+        // 클래스의 부모 클래스 갯수 할당한다.
+        // 시작 인덱스 할당 : 클래스 초기화 시, 전달되는 역 주행 순 번째 인자를 추출하기 위함
+        var pLength = func.parent ? func.parent.p : 0 ;
+        // Cclass 실행 컨텍스트 : PLength = 0;
+        // Bclass 실행 컨섹트스 : PLength = 1;
+        
+
+        // 클래스의 맴버변수 갯수 + 클래스의 부모 클래스 갯수 할당한다.
+        // 마지막 인덱스 할당 : 클래스의 맴버
+        var cLength = func.p = func.length + pLength;
+        // Cclass 실행 컨텍스트 : cLength = 1;
+
+        func.apply(this, Array.from(arguments).slice(pLength+1, cLength+1))
+        
+        // slice(클래스의 부모 클래스 갯수+1, (클래스의 맴버변수 갯수 + 클래스의 부모 클래스 갯수)+1)
+        // 
+
+
+        // func.apply(this, )
+    }
+
+    var abcTreeObj = new init(Aclass,"dev", 29, "ych");
+
+    console.dir(abcTreeObj);
+
 ```
