@@ -657,7 +657,7 @@ public 메서드가 클로저 역활을 하면서 private 맴버인 name에 접�
     console.log(obj.getArr());
 ```
 보통의 경우, 객체를 반환하지 않고 객체의 주요 정보를 새로운 객체에 담아서 반환하는 방법을 많이 사용한다.<br>
-꼭 객체가 반환되어야 하는 경우, 깊은 복사로 복사본을 만들어서 반환하는 방벙을 사용하는 것이 좋다.
+꼭 객체가 반환되어야 하는 경우, **깊은 복사로 복사본을 만들어서** 반환하는 방벙을 사용하는 것이 좋다.
 
 *예제 6-12*
 에졔 6-10 에서 사용자가 반환받은 객체는 Person 함수 객체의 프로토타입에는 접근할 수 없다.<br>
@@ -696,17 +696,50 @@ public 메서드가 클로저 역활을 하면서 private 맴버인 name에 접�
 * 인스턴스를 생성할 때 생성자 호출(여기서는 생성자를 _init 함수로 정한다.)
 
 #### 6.4.1.1 subClass 함수 구조 ####
-subClass는 상속받을 클래스에 넣을 변수 및 메서드가 담긴 객체를 인자로 받아 부모 함수를 상속 받는 자식 클래스를 만든다.
 
+<dl>
+    <dt>
+        <code>
+            subClass(obj)
+        </code>
+    </dt>
+    <dd>
+        부모 함수(함수를 호출할 때 this 객체)를 상속 받는 자식 클래스를 만든다.
+    </dd>
+    <dd>
+        <dl>
+            <dt>
+                <code>obj</code>
+            </dt>
+            <dd>
+                상속받을 클래스에 넣을 변수 및 메서드가 담긴 객체
+            </dd>
+        </dl>
+    </dd>
+</dl>
+
+*함수 subClass 예제*
 ```js
-    
-    var SubperClass = subClass(obj); 
-    // obj : 상속받을 클래스에 넣을 변수, 메서드가 담긴 객체
-    // 참고로 SuperClass는 Function을 상속 받는다.
+    var SuperClass = subClass(obj);
+    /*
+        SuperClass : 자식 클래스
+        obj : 상속받을 클래스(SuperClass)에 넣을 변수, 메서드가 담긴 객체
+        
+        참고로 SuperClass는 Function을 상속 받는다.
+    */
     
     var SubClass = SuperClass.subClass(obj);
-    //SuperClass를 상복받는 subClass를 만든다.
+    /*
+        SuperClass : 부모 클래스
+        SubClass : 자식 클래스
+        obj : SubClass 넣을 변수 및 메서드가 담객 객체
 
+        SuperClass를 상속받는 SubClass를 만든다.
+    */
+```
+
+*함수 subClass의 구조*
+```js
     function subClass(obj) {
         /*
             1. 자식 클래스 (험수 객체) 생성
@@ -721,17 +754,19 @@ subClass는 상속받을 클래스에 넣을 변수 및 메서드가 담긴 객�
 #### 6.4.1.2 자식 클래스 생성 및 상속 ####
 ```js
     function subClass(obj) {
-        var parent = this; // this는 부모 클래스를 가르킨다
+        //.........
+
+        var parent = this;  // this는 부모 클래스를 가르킨다
             
         
-        var F = function() {}; // 부모 객체의 프로로타입과 자식 객채의 프로토타입을 연결할 빈 함수 객체
+        var F = function() {};  // 부모 객체의 프로로타입과 자식 객채의 프로토타입을 연결할 빈 함수 객체
 
-        var child = function() { // 자식 클래스
+        var child = function() {    // 자식 클래스
             
         };
 
         F.prototype = parent.prototype; // 프로토타입 체인 구성
-        child.prototype = new F(); // 부모 객체 상속
+        child.prototype = new F();      // 부모 객체 상속
 
         child.prototype.constructor = child;
         child.parent = parent.prototype;
@@ -744,11 +779,11 @@ subClass는 상속받을 클래스에 넣을 변수 및 메서드가 담긴 객�
 #### 6.4.1.3 자식 클래스 확장 ####
 ```js
     /*
-        인자로 넣은 객체를 자식 클래스에 넣어 확장 한다.
+        인자로 넣은 객체(obj)를 자식 클래스에 넣어 확장 한다.
     */
     for (var i in obj) {
         if (obj.hasOwnProperty(i)) {
-            child.prototype[i] = obj[i]; // 얕은 복사 
+            child.prototype[i] = obj[i];    // 얕은 복사 
         }
     }
 
@@ -758,11 +793,11 @@ subClass는 상속받을 클래스에 넣을 변수 및 메서드가 담긴 객�
         hasOwnPeroperty 메서드
     </dt>
     <dd>
-        Object.prototype 프로퍼티에 정의도이 있는 메서드
+        Object.prototype 프로퍼티에 정의되어 있는 메서드
     </dd>
     <dd>
         인자로 넘기는 이름에 프로퍼티가 객체 내 있는지 판단한다.<br>
-        <strong>프로퍼티를 찾을 때, 프로토타입 체인을 타고 올라가지 않고 해당 객체 내에서만 찾는다.</strong> 
+        <strong>프로퍼티를 찾을 때, 프로토타입 체인을 타고 올라가지 않고</strong> 해당 객체 내에서만 찾는다.
     </dd>
 </dl>
 
@@ -776,8 +811,8 @@ subClass는 상속받을 클래스에 넣을 변수 및 메서드가 담긴 객�
     var child = function() {
         var _parent = child.parent_consturctor;
 
-        if (_parent && _parent !== Function) { // 현재 클래스의 부모 생성자가 있고 부모가 Function(최상위 클래스)이 아닐 경우 실행한다. 
-            _parent.apply(this, arguments); // 부모 함수의 재귀적 호출
+        if (_parent && _parent !== Function) {  // 현재 클래스의 부모 생성자가 있고 부모가 Function(최상위 클래스)이 아닐 경우 실행한다. 
+            _parent.apply(this, arguments);     // 부모 함수의 재귀적 호출
         }
 
         if (child.prototype.hasOwnProperty("_init")) { // _init 프로토타입 체인 방지를 위해 hasOwnProperty 함수 사용
@@ -786,18 +821,28 @@ subClass는 상속받을 클래스에 넣을 변수 및 메서드가 담긴 객�
     }
 ```
 #### 6.4.1.5 subClass 보완 ####
+*최상위 클래스를 Function을 상속받도록 처리*
+```js
+    // var parent = this;
+
+    var parent = this === window ? Function : this;
+```
+*자식 클래스의 역활을 하는 함수는 subClass 함수가 있어야 한다.*
+```js
+    child.subClass = arguments.callee;  // 함수 재귀 체이닝을 위함
+```
 *예제 6-13*
 ```js
     /*
         최종 subClass 
     */
     function subClass(obj) {
-        var parent = this === window ? Function : this; // 최상위 클래스가 Function 객체을 상속받도록 처리
+        var parent = this === window ? Function : this; 
         
         var F = function() {};
 
         var child = function() {
-            var _parent = child.parent; //
+            var _parent = child.parent;
 
             if (_parent && _parent !==Function) {
                 
@@ -809,10 +854,10 @@ subClass는 상속받을 클래스에 넣을 변수 및 메서드가 담긴 객�
             }
         };
 
-        F.prototype = parent.prototype; // 하위 클래스 상속을 위한 프로토타입 체인
+        F.prototype = parent.prototype; 
         child.prototype = new F();
         child.prototype.constructor = child;
-        child.parent = parent; // 
+        child.parent = parent;  
         child.subClass = arguments.callee;
 
         for (var i in obj) {
@@ -830,6 +875,39 @@ subClass는 상속받을 클래스에 넣을 변수 및 메서드가 담긴 객�
     /*
         subClass 함수를 통한 상속
     */
+    function subClass(obj) {
+        var parent = this === window ? Function : this; 
+        
+        var F = function() {};
+
+        var child = function() {
+            var _parent = child.parent;
+
+            if (_parent && _parent !==Function) {
+                
+                _parent.apply(this, arguments);
+            }
+
+            if (child.prototype._init) {
+                child.prototype._init.apply(this, arguments);
+            }
+        };
+
+        F.prototype = parent.prototype; 
+        child.prototype = new F();
+        child.prototype.constructor = child;
+        child.parent = parent;  
+        child.subClass = arguments.callee;
+
+        for (var i in obj) {
+            if (obj.hasOwnProperty(i)) {
+                child.prototype[i] = obj[i];
+            }
+        }
+
+        return child;
+    }
+
     var person_obj = {
         _init : function() {
             console.log("person init");
@@ -851,15 +929,67 @@ subClass는 상속받을 클래스에 넣을 변수 및 메서드가 담긴 객�
         }
     }
 
-    var Person = subClass(person_obj);
-    var person = new Person();
+    var Person = subClass(person_obj);  // Person 클래스 정의
+    var person = new Person();          // Person 클래스 초기화
     person.setName("zzoon");
-    console.log(person.getName());
+    console.log(person.getName());  // zzoon
 
-    var Student = Person.subClass(student_obj);
-    var student = new Student();
+    var Student = Person.subClass(student_obj); // Student 클래스 정의
+    var student = new Student();                // Person, Student 클래스 초기화
     student.setName("iamhjoo");
-    console.log(student.getName());
+    console.log(student.getName()); // iamhjoo
 
-    console.log(Person.toString());
+    console.log(Person.toString()); // Person이 Function을 상속받았는지 확인
+```
+* 생성자 함수가 호출되는가?<br>
+  `var person = new Person();`<br>
+  `var student = new Student();`
+* 부모의 메서드가 자식 인스턴스에서 호출되는가?<br>
+  `student.setName("iamhjoo");`
+* 자식 클래스가 확장 가능한가?<br>
+  `console.log(student.getName());`
+* 최상위 클래스인 Person은 Function을 상속받는가?<br>
+  `console.log(Person.toString());`
+
+#### 6.4.1.7 subClass 함수에 클로저 적용 ####
+프로토타입 체이닝을 위해 만든 함수 객체 F는 subClass 함수가 호출될 때마다 생성된다.<br> 클로저로 단 한번만 생성되게 수정하자.
+```js
+    var subClass = function() {
+        var F = function() {};  // 즉시 실행함수로 새로운 컨섹트스를 만들어서 F 함수 객체 생성
+
+        var subClass = function(obj) {  // F 함수 객체를 참조한다.
+            //......
+        }
+
+        return subClss
+    }()
+```
+
+#### 6.4.2 subClass 함수와 모듈 패턴을 이용한 객체지향 프로그래밍 ####
+모듈 패턴으로 캡슐화를 구현하여, subClass() 함수로 상속을 구현하는 방법
+*예제 6-15*
+```js
+    var person = function(arg) {
+        var name = undefinded;      // name 캡슐화
+
+        return {
+            _init : function(arg) {
+                name = arg ? arg : "zzoon";
+            }
+            getName : function() {
+                return name;
+            }
+            setName : function(arg) {
+                name = arg;
+            }
+        };
+    }
+
+    Person = subClass(person());
+    var chanhyun = new Person('chanhyun');
+    console.log(chanhyun);
+
+    Student = Person.subClass();
+    var student = enw Student("student");
+    console.log(student.getName());
 ```
