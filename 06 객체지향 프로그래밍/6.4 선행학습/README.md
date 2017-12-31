@@ -209,11 +209,11 @@
     Bclass.parent = Cclass;
 
     // factorial 패턴을 활용하여 트리 형태로 된 클래스를 역주행
-    var init = function(func, job, name, age){
+    var init = function(func, job, age, name){
 
 
         if(func.parent){
-            arguments.callee.call(this, func.parent, job, name, age);
+            arguments.callee.call(this, func.parent, job, age, name);
             /*
                 1. arguments.callee.call(Bclass "dev", 29, "ych") 실행 컨택스트 생성
                     
@@ -239,25 +239,16 @@
         
         // argument의 인덱스(초기화 시, 전달 되는 인자의 인덱스) =  slice(시작 인덱스(부모 클래스 갯수) + 마지막 인덱스(부모 클래스 갯수 + 맴버 변수 갯수 ))
 
-        // 클래스의 부모 클래스 갯수 할당한다.
-        // 시작 인덱스 할당 : 클래스 초기화 시, 전달되는 역 주행 순 번째 인자를 추출하기 위함
+        // 시작 인덱스 할당
+        // 클래스의 부모 클래스 갯수 할당
         var pLength = func.parent ? func.parent.p : 0 ;
-        // Cclass 실행 컨텍스트 : PLength = 0;
-        // Bclass 실행 컨섹트스 : PLength = 1;
         
-
-        // 클래스의 맴버변수 갯수 + 클래스의 부모 클래스 갯수 할당한다.
-        // 마지막 인덱스 할당 : 클래스의 맴버
+        // 마지막 인덱스 할당
+        // 부모 클래스 갯수 + 맴버 변수 갯수 할당
         var cLength = func.p = func.length + pLength;
-        // Cclass 실행 컨텍스트 : cLength = 1;
+      
 
         func.apply(this, Array.from(arguments).slice(pLength+1, cLength+1))
-        
-        // slice(클래스의 부모 클래스 갯수+1, (클래스의 맴버변수 갯수 + 클래스의 부모 클래스 갯수)+1)
-        // 
-
-
-        // func.apply(this, )
     }
 
     var abcTreeObj = new init(Aclass,"dev", 29, "ych");
