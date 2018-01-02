@@ -362,3 +362,87 @@
     console.log(myCalculate2.memoization(2));   // equal to console.log(myCalculate2.date[2]);
 ```
 
+### 7.2.3 피보나치 수열 ###
+
+<dl>
+    <dt>
+        <a href="http://terms.naver.com/entry.nhn?docId=2270442&cid=51173&categoryId=51173">피보나치 수열</a>
+    </dt>
+    <dd>
+        피보나치 수열을 생성하는 기본 규칙은 처음 두 항은 1이고, 세 번째 항부터는 바로 앞의 두 항의 합이 된다는 것이다.
+    </dd>
+    <dd> 
+        f(n) = 1(n <=2 일 때)<br>
+        f(n) = f(n-2)+f(n-1)(n > 2 일 때)
+    </dd>
+</dl>
+
+*예제 7-4*
+```JS
+    var fibo = function() {
+        var cache = {'0': 0, '1' : 1}
+
+        var func = function(n) {
+            if (typeof(cache[n]) === 'number') {
+                result = cache[n];
+            } else {
+                result = cache[n] = func(n-1) + func(n-2);
+            }
+            console.log(cache);
+            return result;
+        }
+
+        return func;
+    }();
+
+    console.log(fibo(10));
+```
+*예제 7-5*
+```js
+    /*  
+        함수형 프로그래밍
+        
+        팩토리얼과 피보나치 수열을 계산하는 함수를 인자로 받는 함수
+    */
+    var cacher = function(cache, func) {
+        var calculate = function() {
+            if (typeof(cache[n]) === 'number') {
+                result = cache[n];
+            } else {
+                result = cache[n] = func(calculate, n);
+            }
+
+            return result;
+        }
+
+        return calculate;
+    }
+```
+
+*예제 7-6*
+```js
+     var cacher = function(cache, func) {
+        var calculate = function(n) {
+            if (typeof(cache[n]) === 'number') {
+                resuelt = cache[n];
+            } else {
+                result = cache[n] = func(calculate, n);
+            }
+
+            return result;
+        }
+
+        return calculate;
+    }
+
+    var fact = cacher({'0': 1}, function(func, n){
+        return n * func(n-1);
+    })
+
+    var fibo = cacher({'0':1, "1":2}, function(func, n){
+        return func(n-1) + func(n-2);
+    })
+
+    console.log(fact(10));
+    console.log(fibo(10);
+```
