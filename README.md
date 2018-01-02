@@ -1,2 +1,3 @@
-# study-javascript
-javasciprt core study
+# javascript study
+* ES5 core
+* ES6 core
