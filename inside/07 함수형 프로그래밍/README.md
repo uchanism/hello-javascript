@@ -444,5 +444,239 @@
     })
 
     console.log(fact(10));
-    console.log(fibo(10);
+    console.log(fibo(10));
 ```
+
+## 7.3 자바스크립트에서의 함수형 프로그래밍을 활용한 주요 함수 ##
+
+### 7.3.1 함수 적용 ###
+함수형 프로그래밍에서는 특정 데이터를 여러 가지 함수를 적용시키는 방식으로 작업을 수행한다.<br>
+인자 혹은 반환 값으로 전달된 함수를 특정 데이터에 적용시키는 개념을 이해해야 한다.
+
+<dl>
+    <dt>
+        <code>func.apply(Obj, Args)</code>
+    </dt>
+    <dd>
+        <code>func</code> 함수를 <code>Obj</code> 객체와 <code>args</code> 인자 배열에 적용시킨다.
+    </dd>
+</dl>
+
+### 7.3.2 커링 ###
+특정 함수에서 정의된 인자의 일부를 넣어 고정시키고, 나머지를 인자로 받는 새로운 함수를 만드는 것을 의미한다.
+
+*예제 7-7*
+```js
+    function calculate(a, b, c) {
+        return a*b+c;
+    }
+
+    function curry(func) {
+        var args = Array.prototype.slice.call(arguments, 1);    // 호출 시, 전달받은 두번째 인덱스까지 인자 할당한다.
+
+        return function() {     // 맴버변수 args 참조하는 익명함수 반환                                 
+            return func.apply(null, args.concat(Array.prototype.slice.call(arguments)));    // 전달 받았던 인자를 가르키고 있는 args에 전달받은 인자를 합친다.                                                                                       // 전달 받았던 func 함수를 args에 적용시킨다. 
+                                                                                            // func에서 전달받은 연산된 값을 반환한다.
+        }
+    }
+
+    var new_func1 = curry(calculate, 1);
+    console.log(new_func1(2,3));    // 5
+
+    var new_func2 = curry(calculate, 1,3);
+    console.log(new_func2(3));      // 9
+
+```
+
+<dl>
+    <dt>
+        <a href="https://developer.mozilla.org/ko/docs/Web/JavaScript/Reference/Global_Objects/Array/concat">Array.prototype.concat()</a>
+    </dt>
+    <dd>
+        인자로 주어진 배열이나 값들을 기존 배열에 합쳐서 새 배열을 반환한다.
+    </dd>
+</dl>
+
+<em><b>범용적 커링 함수</b></em>
+```js
+    Function.prototype.curry = function() {
+        var fn = this, args = Array.prototype.slice.call(arguments);
+        return function() {
+            return fn.apply(this, args.concat(Array.prototype.slice.call(arguments)));
+        }
+    }
+
+    var calculate = function(a,b,c) {
+        return a+b+c;
+    } 
+
+    var curryFunc = calculate.curry(1,2);
+    console.log(curryFunc(3));
+```
+*예제 7-8*
+```js
+    /*
+        첫번째, 세번째인자를 고정시키는 커링 함수
+
+        전제조건
+        - calculate() 함수가 원하는 인자를 전부 넣어야 한다.
+        - 고정시키지 않을 인자를 undefined로 넘겨야 한다.
+    */
+
+    function calculate(a, b, c) {
+        return a*b+c;
+    }
+
+    function curry2(func) {
+        var args = Array.prototype.slice.call(arguments, 1);
+
+        return function () {
+            var arg_idx = 0;
+            for (var i = 0; i < args.length && arg_idx < arguments.length; i++) {   
+                // i가 args 길이보다 작으면서 arg_idx가 arguments 길이보다 작을 때
+                
+                // args : 전달받은 두번째 인덱스까지의 인자
+                // arg_idx : argments 객체의 인덱스
+
+                // curry2()를 호출할 때 넘어온 인자로 루프를 돌면서 undefind인 요소를 새로운 함수를 호출할 때 넘어온 인자로 대체한다.
+                if (args[i] === undefined) {
+                    // 전달받은 i번째 인자가 undefined일 경우
+
+                    args[i] = arguments[arg_idx++];     // args i번째 인덱스에 argumetns객체의 증감번째 원소를 할당한다.
+                }
+            }
+            return func.apply(null, args);
+        }
+    }
+
+    var new_func = curry2(calculate, 1, undefined, 4);
+    console.log(new_func(3));   // 1*3+4 = 7
+```
+기존 함수로 인자가 비슷한 새로운 함수를 정의하여 사용하고 싶을때, 이와 같은 방법으로 유용하게 사용할 수 있다.
+
+<dl>
+    <dt>
+        <a href="https://developer.mozilla.org/ko/docs/Web/JavaScript/Reference/Operators/%EB%85%BC%EB%A6%AC_%EC%97%B0%EC%82%B0%EC%9E%90(Logical_Operators)#Logical_AND">Logical AND (&&)</a><br>
+        <code>expr1 && expr2</code>
+    </dt>
+    <dd>
+        <code>expr1</code>을 <code>false</code>로 변환할 수 있는 경우 <code>expr1</code>을 반환하고, 그렇지 않으면 <code>expr2</code>를 반환합니다.<br>
+        따라서 부울 값과 함께 사용할 경우, <code>expr1</code>과 <code>expr2</code>가 모두 <code>true</code>인 경우 <code>true</code>를 반환하고 그렇지 않으면 <code>false</code>를 반환합니다.
+    </dd>
+    <dt>
+        <a href="https://developer.mozilla.org/ko/docs/Web/JavaScript/Reference/Operators/Arithmetic_Operators#%EC%A6%9D%EA%B0%90%EC%97%B0%EC%82%B0%EC%9E%90_()">증감연산자 (<code>++</code>)</a>
+    </dt>
+    <dd>
+        증감연산자 <code>++</code>는 피연산자를 증가시키고 값을 반환한다. 
+    </dd>
+    <dd>
+        피연산자가 피연산자(예:<code>X++</code>)르ㅡㄹ 사용한 후에 연산자를 사용한 경우, <code>X++</code>는 incrementing를 반환하기 전에 값을 반환한다.
+    </dd>
+    <dd>
+        피연산자(예:<code>X++</code>)를 피연산자(예:<code>X++</code>)에 사용한 접두사와 함께 사용할 경우 해당 값을 반환합니다.
+    </dd>
+</dl>
+
+<dl>
+    <dt>
+        <b>함수의 부분 적용 <sub>Partially applying functions</sub></b>
+    </dt>
+    <dd>
+        함수를 부분적으로 적용하여 새로운 함수를 반환받는 방식
+    </dd>
+    <dd>
+        함수의 부분 적용을 가장 잘 구현한 잘 구현한 예제가 curray() 메서드라고 할 수 있다. 
+    </dd>
+</dl>
+
+### 7.3.3 bind ###
+* 커링 기법을 활용한 함수이다.
+* curry() 함수가 자바스크립트 엔진에 내장되지 않는 것도 이 bind() 함수로 충분히 커버가 가능하기 때문일 것이다.
+
+*bind() 함수의 가장 기본적인 기능만 구한한 코드*
+```js
+    Function.prototype.bind = function (thisArg) {
+        var fn = this,
+            slice = Array.prototype.slice,
+            args = slice.call(argments, 1);
+
+        return function () {
+            return fn.apply(thisArg, args.concat(slice.call(arguments)));
+        };
+    }
+```
+
+*예제 7-9*
+```js
+    var print_all = function(arg) {
+        for (var i in this) console.log(i + " : " + this[i]);
+        for (var i in arguments) console.log(i + " : " + arguments[i]);
+    }
+
+    var myobj = {name : "zzoon"};
+
+    var myfunc = print_all.bind(myobj);
+    myfunc();   // myobj 객체를 this에 바인딩시켜 print_all() 함수를 실행한다. 
+                // name : zzoon
+
+    var myfunc1 = print_all.bind(myobj, "iamhjoo", "others");
+    myfunc1("insidejs");    // bind() 함수에 인자가 넘어간다.    
+
+    /*
+        name : zzoon
+        0 : iamhjoo
+        1 : others
+        2 : insidejs
+    */
+```
+
+<em><b>blind()함수로 바인딩한 함수를 상속하는 기능까지 제공한다.</b></em>
+```js
+    if (!Function.prototype.bind) {
+        Function.prototype.bind = function (oThis) {
+            if (typeof this !== "function") {
+                throw new TypeError("Function.prototype.bind = what is trying to be bound is not callable")
+            }
+        
+        var aArgs = Array.prototype.slicd.call(arguments, 1),
+            fToBind = this,
+            fNOP = function () {},
+            fBound = function () {
+                return fToBind.apply(this instanceof fNOP && oThis ? this : oThis, aArgs.concat(Array.prototype.slice.call(arguments)));
+            };
+
+        fNOP.prototype = this.prototype;
+        fBound.prototype = new fNOP();
+
+        return fBound;
+        };
+    }
+
+    function Person(arg) {
+        if(this.name == undefined) this.name = arg ? arg : "zzoon";
+        console.log("Name : " + this.name);
+    }
+
+    Person.prototype.setName = function(value) {
+        this.name = value;
+    };
+
+    Person.prototype.getName = function() {
+        return this.name;
+    };
+
+    var myobj = { name : "iamhjoo" };
+    var new_func = Person.bind(myobj);
+    new_func();     // Name : iamhjoo
+
+    var obj = new new_func();   // Name : zzoon
+    console.log(obj.getName()); // zzoon
+```
+<dl>
+    <dt>
+        <a href="https://developer.mozilla.org/ko/docs/Web/JavaScript/Reference/Operators/instanceof">instanceof</a>
+    </dt>
+    <dd>
+        <code>instanceof</code> 연산자는 생성자의 <code>prototype</code> 속성과 묶인 프로토타입을 가진 오브젝트인지를 테스트합니다.
+    </dd>
+</dl>
