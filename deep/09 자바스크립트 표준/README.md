@@ -357,7 +357,7 @@ Promise 모듈 추가     |     Promise API 기능 추가
     </dd>
 </dl>
 
-이전에는 객체가 생성되면 내부적으로 객체의 프로토타입이 `__proto__`로 숨겨진 속성으로 포현되었다. 그러나 ES6에서는 <storng>객체 표현식으로 정의할 수 있게 되었다.<strong> 이는 기존의 `Object.create()`으로 생성하던 객체와 프로토타입의 기능을 그대로 객체 표현식으로 옮겨온 것으로 생각하면 된다.
+이전에는 객체가 생성되면 내부적으로 객체의 프로토타입이 `__proto__`로 숨겨진 속성으로 포현되었다. 그러나 ES6에서는 <storng>객체 표현식으로 정의할 수 있게 되었다.</strong> 이는 기존의 `Object.create()`으로 생성하던 객체와 프로토타입의 기능을 그대로 객체 표현식으로 옮겨온 것으로 생각하면 된다.
 
 <dl>
     <dt><a href="https://developer.mozilla.org/ko/docs/Web/JavaScript/Reference/Global_Objects/Object/create">Object.create() </a><br>
