@@ -4,7 +4,7 @@
 * ECMAScript 2015 라고도 불린다
 * 하위 호환성을 위해 기존의 표준 위에 추가적인 기능들과 조금 더 나은 프로그래밍 언어의 모습을 얹어놓았다.
 
-<em><b>ECMAScript 6 추가 기능 요약</b></em>
+### ECMAScript 6 추가 기능 요약 ###
 
 추가기능   |   세부 내용
 ----------|------------
@@ -43,7 +43,7 @@ Promise 모듈 추가     |     Promise API 기능 추가
     </dd>
 </dl>
 
-*let와 const 키워드를 통한 변수 선언*
+*<b>let와 const 키워드를 통한 변수 선언</b>*
 ```js
     let myObj = {
         name: "chanhyun",
@@ -59,7 +59,7 @@ Promise 모듈 추가     |     Promise API 기능 추가
 ```
 <code>let</code>과 <code>const</code> 키워드는 블록 개념을 도입하여 <code>if</code>나 <code>for</code> 안에서 변수를 정의하면 외부에서 사용할 수 없다.
 
-*var과 let 키워드 블록 적용 비교 - if*
+*<b>var과 let 키워드 블록 적용 비교 - if</b>s*
 ```js
     if (true) {
         var varVariable = 1;
@@ -71,7 +71,7 @@ Promise 모듈 추가     |     Promise API 기능 추가
     console.log(letVariable);   // ReferenceError: letVariable is not defined
 ```
 
-*var과 let 키워드 블록 적용 비교 - for*
+*<b>var과 let 키워드 블록 적용 비교 - for</b>*
 ```js
     let myArr = [0,1,2,3,4,5],
         arrLeng = myArr.legnth;
@@ -83,7 +83,7 @@ Promise 모듈 추가     |     Promise API 기능 추가
     console.log(myArr[i]);  // ReferenceError: i is not defined
 ```
 
-*var과 let 키워드 중복 변수명 정의 비교*
+*<b>var과 let 키워드 중복 변수명 정의 비교</b>*
 ```js
     // 같은 변수명을 여러 번 정의해도 문제가 없다.
     var duplicatedName = "This is with var";
@@ -161,7 +161,7 @@ Promise 모듈 추가     |     Promise API 기능 추가
         console.log("ES6 IIFE");    // SyntaxError: missing ) after argument list
     }())
 ```
-### 9.1.3. 클래스(class) 키워드 ###
+### 9.1.3 클래스(class) 키워드 ###
 
 *<b>class 키워드 활용 예</b>*
 ```js
