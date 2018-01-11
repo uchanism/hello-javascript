@@ -350,6 +350,27 @@ Promise 모듈 추가     |     Promise API 기능 추가
     previousFuncDefinition.name = "es5";
     console.log(previousFuncDefinition.name);
 ```
+<em><b>getter, setter를 이용한 특정 변수 입출력 전, 전/후처리</b></em>
+```js
+    var person = {
+        _first_name: "First",
+        _last_name:"Last",
+        get full_name() {
+            return this._first_name + " " + this._last_name;
+        },
+        set full_name(value) {
+            this._first_name = value.split(" ")[0];
+            this._last_name = value.split(" ")[1];
+        }
+    }
+
+    console.log(person.full_name);      // getter 실행
+
+    person.full_name = "Yoo Chanhyun";  // setter 실행
+    
+    console.log(person.full_name);
+```
+
 <dl>
     <dt><a href="https://developer.mozilla.org/ko/docs/Web/JavaScript/Reference/Global_Objects/Object/defineProperty">Object.defineProperty()</a></dt>
     <dd>
