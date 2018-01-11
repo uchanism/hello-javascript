@@ -1,3 +1,3 @@
-# javascript study
-* ES5 core
-* ES6 core
+# javascript core
+* ES5 
+* ES6
