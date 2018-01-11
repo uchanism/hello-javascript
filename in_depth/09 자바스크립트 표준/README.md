@@ -564,3 +564,150 @@ ${inputName.value.toUpperCase()}\nWelcom to ES6`;       // \n 표기하지 않�
                                                                 // 서버에서 템플릿 문자열을 가지고 웹페이지를 그릴 때 매우 유용하게 사용할 수 있다.
     consnole.log(String.raw `Hello, ${name}!\nECMAScript{2*2+2} is easy`);  
 ```
+
+### 9.1.6 Destructuring ###
+기존에 구조를 가지고 있던 객체를 분석하여 역으로 하나하나의 변수에 할당하는 것을 의미한다.
+
+<em><b>Destructuring 활용 예</b></em>
+```js
+    (() => {
+        // 배열을 변수에 매핑하여 할당
+        var myArr = [1,2,3,4,5];
+        var [a, b, , c, d] = myArr;     // var 이후 변수들은 배열 표현식으로 동일하게 배치하여 넣으면 된다.
+
+        console.log("Array shorthand: "+a+", "+b+", "+c+", "+d);    // Array shorthand: 1, 2, 4, 5 
+        
+        console.log(`Array shorthand: ${a} ${b} ${c} ${d}`);
+
+        [a, b] = [b, a];
+        console.log("Swap: "+ a + ", " + b);    // Swap: 2, 1
+
+
+        // JSON 규격의 객체를 변수에 매핑하여 할당
+        var myObj = {
+            name: "ych",
+            gender: "Male",
+            job: "Programmer"
+        };
+
+        var {name, gender, job} = myObj;
+        console.log("Object shorthand: " + name +", "+gender+", "+job); // Object shorthand: ych,Male, Programmer
+
+
+        // 여러 단계를 가지는 객체도 같은 구조로 객체의 속성의 속성 등을 할당하여 변수에 넣을 수 있게 되었다.
+        var vehicles = {
+            fourWheeles: {
+                cars: [
+                    "SUV",
+                    "Sedan"
+                ],
+                trucks: [
+                    "Pullover",
+                    "Wagen"
+                ]
+            },
+            twoWheeles: [
+                "bicycle",
+                "motorcycle"
+            ]
+        };
+
+        var {fourWheeles, twoWheeles, fourWheeles: {cars, trucks}} = vehicles;
+        console.log("Deep object: "+fourWheeles+", "+twoWheeles+", "+trucks)    // [object Object], bicycle,motorcycle, Pullover,Wagen
+    })();
+```
+<em><b>Destructuring 기본값 설정 예</b></em>
+```js
+    (() => {
+        var myArr = [1, 2];
+        
+        // 간혹 배열이나 객체가 잘못될 때 에러를 방지하기 위한 기본값을 설정할 수도 있다.
+        var [a = 10, b = 9, c = 8, d = 7] = myArray;
+
+        console.log(a + ", "+b+", "+c+", "+d);  // 1, 2, 8, 7
+    })()
+```
+
+<em><b>인자로 Destructuring 응용 예</b></em>
+```js
+    (() => {
+        function destructArray([first, second]) {
+            console.log("Inside destructArray function: "+ first + " , "+ second)
+            return [first + second, first - second, first * second, first / second]
+        }
+
+        function destructObject({name, gender}) {
+            console.log("Inside destructObject function: "+name+", "+gender);
+            
+            // 객체나 배열로 반환할 때 이를 Destructuring을 통해 여러 변수로 받을 수 있다.
+            // 기존에는 여러 값을 반활할때 추가적인 처리가 필요했지만, Destructuring을 통하여 한 줄로 모든 값을 입력을 완료할 수 있어서 매우 편리해졌다.
+            return {
+                greetings: "Hello, "+ name,
+                sayHello() {    // 함수를 반환하더라도 클로저를 동일하게 사용할 수 있다.
+                    console.log("sayHello function: Hello, "+name);
+                }   
+            };
+        }
+
+        // 배열 표현식으로 인자 전달
+        var [sum, sub, mul, div] = destructArray([1, 2]);
+        console.log(`Return value of destructArray: ${sum}, ${sub}, ${mul}, ${div}`);   // Return value of destructArray: 1,2
+                                                                                        // 3, -1, 2, 0.5
+        
+        // 객체 표현식으로 인자 전달
+        var {greetings, sayHello} = destructObject({name: "ych", gender: "Male"});      // Inside destructObject function: ych, Male
+        
+        sayHello(); //  sayHello function: Hello, ych
+    })();
+```
+### 9.1.7 함수 인자 기능 확대 ###
+<em><b>가변 인자 등 기능 예</b></em>
+```js
+    // ES6
+    function dynamicArguments(arg1, ...rest) {  // 가변 인자에 대한 기능 키워드 "..."(rest parameter) 추가                          
+        console.log(arg1);
+        console.log(rest);
+    }
+
+    dynamicArguments(1,2,3,4);  // 1, [2,3,4]
+
+    var spread = ["P", "R", "E", "A"];
+    dynamicArguments("S", ...spread, "D");  // S ["P", "R", "E", "A", "D"]
+
+    // ES5
+    function previousDynamicArguments(arg1) {
+        var rest = Array.prototype.slice.call(arguments, 1);
+
+        console.log(arg1);
+        console.log(rest);
+    }
+
+    previousDynamicArguments(1,2,3,4);
+    previousDynamicArguments.apply(this, ["S"].concat(spread).concat(["D"]));   // ... 키워드를 사용하면 중간에 필요한 부분만 배열로 동적으로 인자로 넘겨 줄 수 있다.
+```
+<em><b>함수 인자의 기본값 설정 예</b></em>
+```JS
+    // ES 6
+
+    // 인자가 넘어오지 않을 때 기본값 설정을 할 수 있다.
+    function defaultValue(color="black", isNull="Nullable") {   // 인자 기본값 설정
+        console.log("color=" + color + ", isNull=" + isNull);
+    }
+
+    defaultValue(undefined, null);  // color=black, isNull=null
+                                    // 기본값에 null은 그대로 인자를 받고 있으므로 변수를 null로 초기화 할 때는 확인이 필요할 수 도 있다.
+    defaultValue();                 // color=black, isNull=Nullable
+    
+    // 기존 || 를 통한 기본값 할당은 undefined 뿐만 아니라 0, null, false, "" 등의 값들을 모두 처리 했지만 ES6에서는 undefined만 처리한다.
+    defaultValue(0, false); 
+
+    // ES5
+    function previousDefaultValue(color, isNull) {
+        color = color || "black";
+        isNull = isNull || "Nullable";
+        console.log("color=" + color +" , isNull="+isNull);
+    }
+
+    previousDefaultValue(undefined, null);  // color=black , isNull=Nullable
+    previousDefaultValue(0, false);         // color=black , isNull=Nullable
+```
