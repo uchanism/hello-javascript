@@ -1,3 +1,3 @@
-# javascript core
+# Versions
 * ES5 
 * ES6
