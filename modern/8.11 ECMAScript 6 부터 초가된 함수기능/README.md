@@ -263,9 +263,63 @@ var iter_iter = iter[Symbol.iterator]();
 console.log(iter_iter === iter);  // true;
 ```
 ## 8.11.4 제너레이터 ##
+* 이터레이터의 반복 처리를 지원하는 함수
+* 반복 가능한 이터레이터를 값으로 반환한다.
+* 작업의 일시 정지와 재시작이 가능하며 자신의 상태를 관리한다.
 
-(난이도가 높아서 추후에....)
+### 재너레이터의 정의와 실행 ###
+* `function*` 문으로 정의한 함수이다.
+* 하나 이상의 `yield` 표현식을 포함한다.
+* `yield` 는 프로그램이 일시적으로 정지하는 위치다.
+* `next` 메서드는 상태를 실행상태로 바꾸는 역활을 한다.
 
+```js
+function* gen() {
+  yield 1;  // 포인트 1
+  yield 2;  // 포인트 2
+  yield 3;  // 포인트 3
+}
+var iter = gen(); // 1. 이터레이터 반환
+
+console.log(iter.next()); // Object {value: 1, done: false}
+/*
+2. next 메서드가 호출되면 함수의 첫 번째 yield 연산자의 위치(포인트 1)까지 실행하며
+yield 표현식에 지정한 값을 value 프로퍼티 값으로, done 프로퍼티 값으로 제너레이터 함수를 끝까지 실행 했는지
+저장한 이터레이터 리절트를 반환한다. 
+이때 제너레이터 함수의 내부 처리는 포인트 1에서 일시 정지 상태가 된다.
+*/
+
+console.log(iter.next()); // Object {value: 2, done: false}
+/*
+ 3. next 메서드가 호출되면 일시 정지한 위치에 있는 처리를 재개한다. 
+ 제너레이터 함수 안의 다음 번 yield 연산자의 위치(포인트 2)까지 실행한다. value 프로퍼티 값으로, done 프로퍼티 값으로 제너레이터 함수를 끝까지 실행 했는지
+ 저장한 이터레이터 리절트를 반환하고 처리를 일시 정지한다.
+*/
+
+console.log(iter.next()); // Object {value: 3, done: false}
+/*
+ 4. next 메서드가 호출되면 일시 정지한 위치에 있는 처리를 재개한다. 
+ 다음 yield 연산자의 위치까지 실행한다.
+ value 프로퍼티 값으로, done 프로퍼티 값으로 제너레이터 함수를 끝까지 실행 했는지
+ 저장한 이터레이터 리절트를 반환하고 처리를 일시 정지한다.
+*/
+
+console.log(iter.next()); // Object {value: undefined, done: true}
+/*
+5. 이터레이터의 next 메서드가 호출되어 함수 처리가 마지막 yield에 도착하면
+value 프로퍼티 값이 undefined고 done 프로퍼티 값이 true인 이터레이터 리절트를 반환한다.
+*/
+```
+
+#### 예제 8-21 M부터 n까지의 정수 값을 순서대로 꺼내는 이터레이터를 생성하는 제너레이터 ####
+```js
+function* createNumbers(from, to) {
+  while(from <= to) yield from++;
+}
+var iter = createNumbers(10, 20);
+console.dir(iter);
+for(var v of iter) console.log(v);
+```
 
 ## 8.11.5 템플릿 리터럴의 태그 함수 ##
 ### 태그가 지정된 템플릿 리터럴 ###
